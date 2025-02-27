@@ -457,3 +457,43 @@ hr {
     box-shadow: none !important;
 
 }
+
+/* Estilos para los modales */
+.modal-content {
+    background-color: var(--dark-gray); /* Fondo oscuro */
+    color: var(--green-bright); /* Texto verde brillante */
+    border: 1px solid var(--green-bright); /* Borde verde brillante */
+}
+
+/* Estilos del título del modal */
+.modal-header {
+    background-color: var(--dark-gray);
+    color: var(--green-bright);
+}
+
+/* Estilos para los botones del modal */
+.modal-footer .btn {
+    background-color: var(--green-bright);
+    color: var(--dark-gray);
+    border: none;
+}
+
+.modal-footer .btn:hover {
+    background-color: #00cc00; /* Un verde un poco más oscuro al pasar el ratón */
+}
+
+/* Estilo para el modal cuando está visible */
+.modal.show {
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro transparente */
+}
+
+/* Ajustes para el cierre del modal */
+.modal-header .btn-close {
+    background-color: var(--dark-gray);
+    color: var(--green-bright);
+}
+
+.modal-header .btn-close:hover {
+    background-color: #00cc00;
+    color: var(--dark-gray);
+}

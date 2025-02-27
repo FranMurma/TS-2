@@ -169,34 +169,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("🔄 Página cargada. Inicializando configuración...");
 
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const loginBox = document.getElementById("loginBox");
-    
-        if (!loginBox) {
-            console.error("❌ ERROR: loginBox no encontrado.");
-            return;
-        }
-    
-        console.log("✅ loginBox encontrado. Asignando eventos...");
-    
-        // 💡 Evento para abrir el menú al hacer clic
-        loginBox.addEventListener("click", function (event) {
-            event.stopPropagation();
-            console.log("🖱️ Clic en Log in / Sign up detectado!");
-            showMenu("main");
-        });
-    
-        // 💡 Evento para abrir el menú con ENTER o ESPACIO
-        loginBox.addEventListener("keydown", function (event) {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                console.log("⌨️ Enter o Espacio presionado en Log in / Sign up");
-                showMenu("main");
-            }
-        });
-    });
-    
-
     // 🟢 1. Inicialización del idioma
     const currentLanguage = localStorage.getItem("language") || "en";
     const languageSelector = document.getElementById("languageSelector");
@@ -233,29 +205,52 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 🟢 4. Manejo del menú de login
+    // 🟢 4. Manejo del menú de login y eventos de accesibilidad
     const loginBox = document.getElementById("loginBox");
 
-    const loginOptions = document.getElementById("loginOptions");
+    if (!loginBox) {
+        console.error("❌ ERROR: loginBox no encontrado.");
+        return;
+    }
 
-    if (loginBox && loginOptions) {
-        loginBox.addEventListener("click", function (event) {
-            event.stopPropagation();
-    
-            if (isLoggedIn) {
-                console.log("🟢 Usuario logeado, abriendo menú de usuario...");
-                openUserMenu(); // Mostrar menú de usuario en vez del de login
-            } else {
-                console.log("🔴 Usuario no logeado, mostrando opciones de login...");
-                
-                if (!loginOptions.classList.contains("visible")) {
-                    loginOptions.classList.add("visible");
-                    showMenu("main"); // Ahora solo se ejecuta si el menú no estaba visible
-                }
+    console.log("✅ loginBox encontrado. Asignando eventos...");
+
+    loginBox.setAttribute("tabindex", "0"); // 🔹 Permitir navegación con Tab
+
+    // 🔹 Evento de clic normal
+    loginBox.addEventListener("click", function (event) {
+        event.stopPropagation();
+        if (isLoggedIn) {
+            console.log("🟢 Usuario logeado, abriendo menú de usuario...");
+            openUserMenu(event);
+        } else {
+            console.log("🔴 Usuario no logeado, mostrando opciones de login...");
+            showMenu("main");
+        }
+    });
+
+    // 🔹 Evento de teclado (Enter o Espacio simulan clic)
+    loginBox.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            console.log("⌨️ Enter o Espacio presionado en Log in / Sign up");
+            loginBox.click(); // 🔥 Simula un clic normal
+        }
+    });
+
+    // 🔹 Permitir que TODOS los botones de menú se comporten igual
+    document.querySelectorAll(".menu-option").forEach(menuOption => {
+        menuOption.setAttribute("tabindex", "0"); // Asegurar que sean navegables
+        menuOption.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                console.log(`⌨️ Enter/Espacio detectado en: ${menuOption.dataset.menu}`);
+                menuOption.click(); // 🔥 Simula un clic
             }
         });
-    }
-    
+    });
+
+    console.log("✅ Todos los eventos han sido asignados correctamente.");
 
     // 🟢 5. Asegurar que el menú de usuario se abre correctamente
     const userWelcome = document.getElementById("userWelcome");
@@ -273,12 +268,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 playMenu.classList.remove("visible");
             }
 
-            openUserMenu(); // ✅ Llamamos a la función sin return para que siempre abra User Menu
+            openUserMenu(event);
         });
     }
-
-
-
+    
     if (playButton) {
         const playMenu = document.createElement("div");
         playMenu.id = "playMenu";
@@ -364,7 +357,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 🔄 Inicializando eventos de navegación...
     console.log("🔄 Inicializando eventos de navegación...");
     document.querySelectorAll(".menu-option").forEach(option => {
-        if (option) {
+        if (option.id !== "languageBox") {
             option.removeEventListener("click", handleMenuClick); // Evita eventos duplicados
             option.addEventListener("click", function (event) {
                 updateActiveButton(option); // 🔹 Ilumina el botón actual
@@ -574,6 +567,11 @@ function showMenu(menu) {
 
     loginOptions.innerHTML = menuContent;
 
+    // Añadir tabindex a las opciones del menú dinámico
+    document.querySelectorAll(".login-option").forEach(option => {
+        option.setAttribute("tabindex", "0"); // Asegura que sean navegables con Tab
+    });
+
     // 🔹 Enfocar el primer elemento navegable del menú
     setTimeout(() => {
         let firstElement = loginOptions.querySelector("[tabindex='0'], input, button");
@@ -636,7 +634,7 @@ function showMenu(menu) {
                 }
             });
         });
-    });    
+    });
 }
 
 // EL puto modal
